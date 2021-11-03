@@ -30,28 +30,38 @@ class _GridViewCardState extends State<GridViewCard> {
       init: ProductController(),
       builder: (data)=>GridView.count(
         crossAxisCount: Responsive.isMobile(context)?2:4,
+        physics: NeverScrollableScrollPhysics(),
         crossAxisSpacing: 15.0,
         mainAxisSpacing: 10.0,
         shrinkWrap: true,
-        children: List.generate(productController.productsList.length, (index) {
+        children:productController.productsList.length==0?
+            [
+              Align(alignment:Alignment.center,child: Text("NO PRODUCTS TO SHOW"))
+            ]
+            :
+        List.generate(productController.productsList.length, (index) {
           return Container(
             decoration: BoxDecoration( borderRadius: BorderRadius.circular(10),color:Color(0xFFEFF3F6),),
 
             child: Column(
 
               children: [
-                Expanded(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Image.asset(
-                          productImages[Random().nextInt(productImages.length)],
-                          fit: BoxFit.fill,
+
+                GetBuilder<ProductController>(
+                  init:ProductController(),
+                  builder: (data)=> Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Image.asset(
+                            "${data.productsList[index].image}",
+                            fit: BoxFit.fill,
+                          ),
                         ),
-                      ),
-                      OptionsCard(index: index,),
-                    ],
+                        OptionsCard(index: index,),
+                      ],
+                    ),
                   ),
                 ),
                 GetBuilder<ProductController>(

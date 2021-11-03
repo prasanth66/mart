@@ -17,6 +17,7 @@ class OptionsCard extends StatelessWidget {
     return Container(
       child: FloatingActionButton(
         onPressed: null,
+        heroTag: null,
         mini: true,
         child: SpeedDial(
           icon: Icons.more_vert,

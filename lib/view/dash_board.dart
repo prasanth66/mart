@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
+import 'package:intl/intl.dart';
 import 'package:mart/controller/product_controller.dart';
 import 'package:mart/extensions.dart';
 import 'package:mart/widgets/grid_view_card.dart';
@@ -10,6 +12,7 @@ import 'package:mart/widgets/information_card.dart';
 import 'package:mart/widgets/list_view_card.dart';
 import 'package:mart/widgets/search_bar.dart';
 import '../model/product_model.dart';
+import 'package:flutter_date_picker/flutter_date_picker.dart';
 import '../responsive.dart';
 
 class DashBoard extends StatefulWidget {
@@ -28,7 +31,7 @@ class _DashBoardState extends State<DashBoard> {
     var screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-
+      resizeToAvoidBottomInset: true,
       appBar:AppBar(
         shadowColor: Colors.black,
         backgroundColor: Colors.white,
@@ -74,6 +77,7 @@ class _DashBoardState extends State<DashBoard> {
                     ),
                   ),
                   Responsive.isMobile(context)?FloatingActionButton(
+                    heroTag: null,
                     onPressed: (){
 
                       Navigator.of(context).pushNamed('/product',arguments: true);
@@ -122,18 +126,30 @@ class _DashBoardState extends State<DashBoard> {
           bottomShadowColor : Color.fromRGBO(255, 255, 255, 0.9),
         ),
                       Responsive.isDesktop(context)?SearchBar():Container(),
+                      ElevatedButton(
+                        onPressed: (){
+                          showDatesBottom(context);
+                        },
+                        child: Text("DATES"),
+                      ),
+                      ElevatedButton(
+                        onPressed: (){
+                          productController.sortByName();
+                        },
+                        child: Text("SORT"),
+                      ),
 
-                      Responsive.isMobile(context)?Container():Wrap(
+                      Wrap(
                         children:  [
-                          Text(
-                              "View",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold
-                            ),
-                          ),
-                          SizedBox(width: 10,),
+                          // Text(
+                          //     "View",
+                          //   style: TextStyle(
+                          //     color: Colors.black,
+                          //     fontSize: 18,
+                          //     fontWeight: FontWeight.bold
+                          //   ),
+                          // ),
+                          // SizedBox(width: 10,),
                           InkWell(
                             onTap: () {
                               setState(() {
@@ -158,12 +174,13 @@ class _DashBoardState extends State<DashBoard> {
                               )
                           ),
                           SizedBox(width: 10,),
-                          ElevatedButton(
+                          Responsive.isDesktop(context)?ElevatedButton(
                             onPressed: (){
                               Navigator.of(context).pushNamed('/product',arguments: true);
                             },
                             child: Text("ADD Product"),
-                          ),
+                          ):Container(),
+
                         ],
                       )
                     ],
@@ -174,6 +191,16 @@ class _DashBoardState extends State<DashBoard> {
               SizedBox(height: 20,),
               Responsive.isMobile(context)?SearchBar():Container(),
               SizedBox(height: 40,),
+              Align(
+                alignment: Alignment.topRight,
+                child: ElevatedButton(
+                  onPressed: (){
+                    productController.refreshFilters();
+                  },
+                  child: Text("REFRESH"),
+                ),
+              ),
+              SizedBox(height: 20,),
               view==0?GridViewCard():ListViewCard(),
               SizedBox(height: 100,),
               InformationCard(),
@@ -184,4 +211,59 @@ class _DashBoardState extends State<DashBoard> {
 
     );
   }
+
+}
+
+showDatesBottom(context) async{
+  final productController = Get.put(ProductController());
+  DateTime time = DateTime.now();
+ return showModalBottomSheet<void>(
+   context: context,
+      builder: (BuildContext context) {
+        return Column(
+          children: [
+           Row(
+             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+             children: [
+               Padding(
+                 padding: const EdgeInsets.all(8.0),
+                 child: ElevatedButton(
+                   onPressed: (){
+                     Navigator.pop(context);
+                   },
+                   child: Text("CANCEL"),
+                 ),
+               ),
+               Padding(
+                 padding: const EdgeInsets.all(8.0),
+                 child: ElevatedButton(
+                   onPressed: (){
+                     productController.searchProductByDate(time);
+                     Navigator.pop(context);
+                   },
+                   child: Text("DONE"),
+                 ),
+               ),
+             ],
+           ),
+            Divider(thickness: 1.5,),
+            Expanded(
+              child: CupertinoDatePicker(
+                initialDateTime: DateTime.now(),
+                onDateTimeChanged: (DateTime newdate) {
+                  print(newdate);
+                  time = newdate ;
+                },
+                use24hFormat: false,
+                maximumDate: new DateTime(2025, 12, 30),
+                minimumYear: 2010,
+                maximumYear: 2025,
+                minuteInterval: 1,
+                mode: CupertinoDatePickerMode.date,
+              ),
+            )
+          ],
+        );
+      }
+ );
 }

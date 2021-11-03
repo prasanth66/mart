@@ -27,12 +27,17 @@ class ListViewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(
       init: ProductController(),
-      builder: (products)=>ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
+      builder: (products)=>productController.productsList.length==0
+          ?
+      Center(child: Text("NO PRODUCTS TO SHOW"))
+          :
+      ListView.builder(
+        physics: NeverScrollableScrollPhysics(),
         itemCount: productController.productsList.length,
         shrinkWrap: true,
         itemBuilder: (BuildContext context,int index){
-          return Container(
+          return
+          Container(
               child: Card(
                 child: Column(
                   children: [
